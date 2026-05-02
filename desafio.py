@@ -1,3 +1,5 @@
+import datetime
+
 menu = """
 =======Menu de Opções======
 1. Depositar
@@ -11,18 +13,27 @@ saldo = 0
 limite = 500
 extrato = ""
 numero_saques = 0
+numero_transacoes = 0
 LIMITE_SAQUES = 3
-#O programa inicia com um saldo de 0, um limite de saque de 500, um extrato vazio e um contador de saques igual a 0. O limite de saques é definido como 3.
+LIMITE_TRANSACOES_DIARIAS = 10 
+#O programa inicia com um saldo de 0, um limite de saque de 500, um extrato vazio e um contador de saques e transações igual a 0. O limite de saques é definido como 3. O limite de transações diárias é definido como 10, o que significa que o usuário pode realizar no máximo 10 transações (depósitos e saques) em um dia.
 
 while True:
     opcao = input(menu)
+
+    if opcao in ["1", "2"]:
+        if numero_transacoes >= LIMITE_TRANSACOES_DIARIAS:
+            print("Limite diário de 10 transações atingido. Por favor, tente novamente amanhã.")
+            continue
 
     if opcao == "1":
         valor = float(input("Digite o valor do depósito: "))
 
         if valor > 0:
+            data_hora = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             saldo += valor
-            extrato += f"Depósito: R$ {valor:.2f}\n"
+            extrato += f"[{data_hora}] Depósito: R$ {valor:.2f}\n"
+            numero_transacoes += 1
             print("Depósito realizado com sucesso!")
         else:
             print("Valor inválido. O depósito deve ser maior que zero.")
@@ -40,8 +51,10 @@ while True:
             print("Valor inválido. O saque deve ser maior que zero.")
         else:
             saldo -= valor
-            extrato += f"Saque: R$ {valor:.2f}\n"
+            data_hora = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            extrato += f"[{data_hora}] Saque: R$ {valor:.2f}\n"
             numero_saques += 1
+            numero_transacoes += 1
             print("Saque realizado com sucesso!")
             #O programa verifica se o valor do saque é maior que o saldo disponível, se excede o limite permitido, se o número máximo de saques foi atingido ou se o valor é inválido. Se todas as condições forem atendidas, o saque é realizado, o saldo é atualizado, o extrato é registrado e o contador de saques é incrementado.
 
@@ -49,6 +62,7 @@ while True:
         print("\n=======Extrato:=======")
         print(extrato if extrato else "Nenhuma transação realizada.")
         print(f"Saldo atual: R$ {saldo:.2f}")
+        print(f"Transações realizadas hoje: {numero_transacoes}/{LIMITE_TRANSACOES_DIARIAS}")
         print("======================\n")
         #O programa exibe o extrato das transações realizadas, mostrando os depósitos e saques, além do saldo atual. Se nenhuma transação foi realizada, uma mensagem informando isso é exibida.
 
