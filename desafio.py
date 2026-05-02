@@ -49,6 +49,8 @@ def exibir_extrato(saldo, /, *, extrato):
     print("\n======= Extrato =======")
     print("Não foram realizadas movimentações." if not extrato else extrato)
     print(f"Saldo: R$ {saldo:.2f}")
+    print(f"Limite de Transações Diárias: {1
+    numero_transacoes}/{LIMITE_TRANSACOES_DIARIAS}")
     print("========================")
     #A função exibir_extrato é responsável por exibir o extrato das transações realizadas, mostrando os depósitos e saques, além do saldo atual. Se nenhuma transação foi realizada, uma mensagem informando isso é exibida
 
@@ -146,6 +148,7 @@ limite = 500
 extrato = ""
 numero_saques = 0
 numero_transacoes = 0
+
 numero_conta = 1
 LIMITE_SAQUES = 3
 LIMITE_TRANSACOES_DIARIAS = 10 
