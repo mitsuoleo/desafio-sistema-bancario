@@ -46,6 +46,14 @@ class Historico:
     @property
     def transacoes(self):
         return self._transacoes
+    
+    @property
+    def transacoes_do_dia(self):
+        hoje = datetime.now().date()
+        return [
+            t for t in self._transacoes 
+            if datetime.strptime(t["data"], "%d/%m/%Y %H:%M:%S").date() == hoje
+        ]
         
     def adicionar_transacao(self, transacao):
         self._transacoes.append({
@@ -55,11 +63,16 @@ class Historico:
         })
 
 class Cliente:
+    LIMITE_TRANSACOES_DIARIAS = 10
+
     def __init__(self, endereco):
         self._endereco = endereco
         self._contas = []
 
     def realizar_transacao(self, conta, transacao):
+        if len(conta.historico.transacoes_do_dia) >= self.LIMITE_TRANSACOES_DIARIAS:
+            print("\nLimite diário de transações atingido. Tente novamente amanhã.")
+            return
         transacao.registrar(conta)
 
     def adicionar_conta(self, conta):
@@ -215,6 +228,10 @@ def exibir_extrato(clientes):
 
     print(extrato)
     print(f"\nSaldo:\n\tR$ {conta.saldo:.2f}")
+
+    realizadas_hoje=len(conta.historico.transacoes_do_dia)
+    restantes = Cliente.LIMITE_TRANSACOES_DIARIAS - realizadas_hoje
+    print(f"\nTransações realizadas: {realizadas_hoje}/{Cliente.LIMITE_TRANSACOES_DIARIAS}")
     print("==========================================")
 
 def criar_cliente(clientes):
