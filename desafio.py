@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 
-class Transacao(ABC):
+class Transacao(ABC): # Classe abstrata que representa uma transação bancária, definindo a interface para as transações de depósito e saque, com um método abstrato para registrar a transação em uma conta e uma propriedade abstrata para acessar o valor da transação
     @property
     @abstractmethod
     def valor(self):
@@ -13,7 +13,7 @@ class Transacao(ABC):
     def registrar(self, conta):
         pass
 
-class Deposito(Transacao):
+class Deposito(Transacao): # Classe que representa uma transação de depósito, implementando a interface Transacao e definindo o método registrar para realizar a operação de depósito em uma conta, verificando se o depósito foi bem-sucedido antes de adicionar a transação ao histórico da conta
     def __init__(self, valor):
         self._valor = valor
 
@@ -26,7 +26,7 @@ class Deposito(Transacao):
         if sucesso_transacao:
             conta.historico.adicionar_transacao(self)
 
-class Saque(Transacao):
+class Saque(Transacao): # Classe que representa uma transação de saque, implementando a interface Transacao e definindo o método registrar para realizar a operação de saque em uma conta, verificando se o saque foi bem-sucedido antes de adicionar a transação ao histórico da conta
     def __init__(self, valor):
         self._valor = valor
 
@@ -39,7 +39,7 @@ class Saque(Transacao):
         if sucesso_transacao:
             conta.historico.adicionar_transacao(self)
 
-class Historico:
+class Historico: # Classe que representa o histórico de transações de uma conta, armazenando uma lista de transações realizadas
     def __init__(self):
         self._transacoes = []
 
@@ -62,7 +62,7 @@ class Historico:
             "data": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         })
 
-class Cliente:
+class Cliente: # Classe que representa um cliente do banco, com atributos para endereço e uma lista de contas associadas
     LIMITE_TRANSACOES_DIARIAS = 10
 
     def __init__(self, endereco):
@@ -78,7 +78,7 @@ class Cliente:
     def adicionar_conta(self, conta):
         self._contas.append(conta)
 
-class PessoaFisica(Cliente):
+class PessoaFisica(Cliente): # Classe que representa um cliente pessoa física, herdando da classe Cliente e adicionando atributos específicos como nome, CPF e data de nascimento
     def __init__(self, nome, cpf, data_nascimento, endereco):
         super().__init__(endereco)
         self._nome = nome
@@ -89,7 +89,7 @@ class PessoaFisica(Cliente):
     def nome(self):
         return self._nome
 
-class Conta: 
+class Conta: # Classe que representa uma conta bancária, com atributos para número da conta, agência, cliente associado, saldo e histórico de transações. A classe possui métodos para realizar depósitos e saques, além de propriedades para acessar os atributos da conta
     def __init__(self, numero, cliente):
         self._saldo = 0
         self._numero = numero
@@ -145,7 +145,7 @@ class Conta:
             print("\nValor inválido. O saque deve ser maior que zero.")
             return False
         
-class ContaCorrente(Conta):
+class ContaCorrente(Conta): # Classe que representa uma conta corrente, herdando da classe Conta e adicionando funcionalidades específicas para controle de limite de saque e número máximo de saques diários. O método sacar é sobrescrito para incluir as verificações de limite e número de saques antes de realizar a operação de saque
     def __init__(self, numero, cliente, limite=500, limite_saques=3):
         super().__init__(numero, cliente)
         self._limite = limite
@@ -164,13 +164,13 @@ class ContaCorrente(Conta):
             return super().sacar(valor)
         return False
 
-def recuperar_conta_cliente(cliente):
+def recuperar_conta_cliente(cliente): # Função para recuperar a conta associada a um cliente, verificando se o cliente possui contas cadastradas. Se o cliente tiver contas, retorna a primeira conta encontrada. Se o cliente não tiver contas, exibe uma mensagem informando que o cliente não possui contas cadastradas e retorna None
     if not cliente._contas:
         print("\nCliente não possui contas cadastradas")
         return None
     return cliente._contas[0]
 
-def depositar(clientes):
+def depositar(clientes): # Função para realizar um depósito, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função solicita o valor do depósito, cria uma transação de depósito e recupera a conta associada ao cliente para realizar a transação. Se o clientenão for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -187,7 +187,7 @@ def depositar(clientes):
 
     cliente.realizar_transacao(conta, transacao)
 
-def sacar(clientes):
+def sacar(clientes): # Função para realizar um saque, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função solicita o valor do saque, cria uma transação de saque e recupera a conta associada ao cliente para realizar a transação. Se o cliente não for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -204,7 +204,7 @@ def sacar(clientes):
 
     cliente.realizar_transacao(conta, transacao)
 
-def exibir_extrato(clientes):
+def exibir_extrato(clientes): # Função para exibir o extrato de um cliente, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função recupera a conta associada ao cliente e exibe o histórico de transações, incluindo o tipo da transação, valor, data e o saldo atual da conta. A função também exibe o número de transações realizadas no dia e o limite diário de transações. Se o cliente não for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -234,7 +234,7 @@ def exibir_extrato(clientes):
     print(f"\nTransações realizadas: {realizadas_hoje}/{Cliente.LIMITE_TRANSACOES_DIARIAS}")
     print("==========================================")
 
-def criar_cliente(clientes):
+def criar_cliente(clientes): # Função para criar um novo cliente, solicitando informações como CPF, nome completo, data de nascimento e endereço. A função verifica se já existe um cliente com o mesmo CPF antes de criar um novo cliente e adicioná-lo à lista de clientes. Se um cliente com o mesmo CPF já existir, exibe uma mensagem informando que já existe um cliente com esse CPF
     cpf = input("Informe o CPF (somente números): ")
     if filtrar_cliente(cpf, clientes):
         print("\n=== Já existe cliente com esse CPF! ===")
@@ -248,7 +248,7 @@ def criar_cliente(clientes):
     clientes.append(cliente)
     print("\n=== Cliente criado com sucesso! ===")
 
-def filtrar_cliente(cpf, clientes):
+def filtrar_cliente(cpf, clientes): # Função para filtrar um cliente pelo CPF, aceitando diferentes formatos de entrada e comparando apenas os dígitos do CPF. Retorna o cliente encontrado ou None se não houver correspondência
     cpf_digitado = ''.join(filter(str.isdigit, cpf))
     clientes_filtrados = [
         cliente for cliente in clientes 
@@ -256,7 +256,7 @@ def filtrar_cliente(cpf, clientes):
     ]
     return clientes_filtrados[0] if clientes_filtrados else None
 
-def criar_conta(clientes, contas, numero_conta):
+def criar_conta(clientes, contas, numero_conta): # Função para criar uma nova conta para um cliente existente, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função cria uma nova conta corrente, adiciona à lista de contas e associa a conta ao cliente. Se o cliente não for encontrado, exibe uma mensagem informando que o cliente não foi encontrado
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -269,13 +269,13 @@ def criar_conta(clientes, contas, numero_conta):
     cliente.adicionar_conta(conta)
     print("\n=== Conta criada com sucesso! ===")
 
-def formatar_cpf(cpf):
+def formatar_cpf(cpf): # Função para formatar o CPF do cliente, aceitando diferentes formatos de entrada e convertendo para o formato padrão "xxx.xxx.xxx-xx". Se o CPF não tiver 11 dígitos, retorna sem formatação
     cpf = ''.join(filter(str.isdigit, cpf))
     if len(cpf) != 11:
         return cpf # Retorna o CPF sem formatação se não tiver 11 dígitos
     return f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}"
 
-def formatar_data(data_nascimento):
+def formatar_data(data_nascimento): # Função para formatar a data de nascimento do cliente, aceitando diferentes formatos de entrada e convertendo para o formato padrão "dd/mm/aaaa". Se a data não puder ser formatada, retorna a string original
     digits = ''.join(filter(str.isdigit, data_nascimento))
     if len(digits) == 8:
         return f"{digits[:2]}/{digits[2:4]}/{digits[4:]}"
@@ -286,7 +286,7 @@ def formatar_data(data_nascimento):
             continue
     return data_nascimento  # retorna original se nenhum formato bater
     
-def listar_clientes(clientes):
+def listar_clientes(clientes): # Função para listar todos os clientes cadastrados, exibindo informações como nome, CPF formatado, data de nascimento formatada e endereço. Se não houver clientes cadastrados, exibe uma mensagem informando que não há clientes disponíveis
     if not clientes:
         print("\nNenhum cliente cadastrado!")
         return
@@ -299,7 +299,7 @@ def listar_clientes(clientes):
             Endereço:\t{cliente._endereco}"""))
         print("=" * 100)
 
-def listar_contas(contas):
+def listar_contas(contas): # Função para listar todas as contas cadastradas, exibindo informações como agência, número da conta, nome do titular e CPF formatado. Se não houver contas cadastradas, exibe uma mensagem informando que não há contas disponíveis
         if not contas:
             print("\nNenhuma conta cadastrada!")
             return
@@ -312,7 +312,7 @@ def listar_contas(contas):
             CPF: \t\t{formatar_cpf(conta.cliente._cpf)}""")) 
             print("=" * 100)
 
-def main():
+def main(): # Função principal do programa que inicializa as listas de clientes e contas, exibe o menu de opções e processa as escolhas do usuário
     clientes = []
     contas = []
     menu = """
@@ -328,7 +328,7 @@ def main():
 ===========================
 """
 
-    while True:
+    while True: # Loop principal do programa para exibir o menu e processar as opções escolhidas pelo usuário
         opcao = input(menu)
 
         if opcao == "1":
@@ -352,4 +352,4 @@ def main():
         else:
             print("Opção inválida. Por favor, escolha uma opção válida.")
 
-main()
+main() # Executa o programa principal para iniciar o sistema bancário
