@@ -1,7 +1,9 @@
 import textwrap
 from abc import ABC, abstractmethod
 from datetime import datetime
+from database import Database
 
+db = Database()
 
 class Transacao(ABC): # Classe abstrata que representa uma transação bancária, definindo a interface para as transações de depósito e saque, com um método abstrato para registrar a transação em uma conta e uma propriedade abstrata para acessar o valor da transação
     @property
@@ -164,13 +166,32 @@ class ContaCorrente(Conta): # Classe que representa uma conta corrente, herdando
             return super().sacar(valor)
         return False
 
-def recuperar_conta_cliente(cliente): # Função para recuperar a conta associada a um cliente, verificando se o cliente possui contas cadastradas. Se o cliente tiver contas, retorna a primeira conta encontrada. Se o cliente não tiver contas, exibe uma mensagem informando que o cliente não possui contas cadastradas e retorna None
+def recuperar_conta_cliente(cliente): # Função para recuperar a conta associada a um cliente, verificando se o cliente possui contas cadastradas e, se houver mais de uma conta, solicitando ao usuário que escolha qual conta deseja acessar. A função retorna a conta escolhida ou None se o cliente não tiver contas ou se a escolha for inválida
     if not cliente._contas:
         print("\nCliente não possui contas cadastradas")
         return None
-    return cliente._contas[0]
+    
+    if len(cliente._contas) == 1:
+        return cliente._contas[0]
+    
+    print("\nContas do cliente:")
+    for conta in cliente._contas:
+        print(f"  Nº {conta.numero} | Saldo: R$ {conta.saldo:.2f}")
+    try:
+        numero = int(input("\nInforme o número da conta: "))
+    except ValueError:
+        print("\nNúmero inválido.")
+        return None
+    
+    conta_escolhida = next((c for c in cliente._contas if c.numero == numero), None)
 
-def depositar(clientes): # Função para realizar um depósito, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função solicita o valor do depósito, cria uma transação de depósito e recupera a conta associada ao cliente para realizar a transação. Se o clientenão for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
+    if not conta_escolhida:
+        print("\n=== Conta não encontrada para este cliente! ===")
+        return None 
+    
+    return conta_escolhida
+
+def depositar(clientes, db): # Função para realizar um depósito, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função solicita o valor do depósito, cria uma transação de depósito e recupera a conta associada ao cliente para realizar a transação. Se o clientenão for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -185,9 +206,15 @@ def depositar(clientes): # Função para realizar um depósito, solicitando o CP
     if not conta:
         return
 
+    transacao = Deposito(valor)
     cliente.realizar_transacao(conta, transacao)
 
-def sacar(clientes): # Função para realizar um saque, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função solicita o valor do saque, cria uma transação de saque e recupera a conta associada ao cliente para realizar a transação. Se o cliente não for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
+    ultima = conta.historico.transacoes[-1] if conta.historico.transacoes else None
+    if ultima and ultima["tipo"] == "Deposito":
+        db.atualizar_saldo(conta.numero, conta.saldo)
+        db.salvar_transacao(conta.numero, "Depósito", valor)
+
+def sacar(clientes, db): # Função para realizar um saque, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função solicita o valor do saque, cria uma transação de saque e recupera a conta associada ao cliente para realizar a transação. Se o cliente não for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -203,6 +230,11 @@ def sacar(clientes): # Função para realizar um saque, solicitando o CPF do cli
         return
 
     cliente.realizar_transacao(conta, transacao)
+
+    ultima = conta.historico.transacoes[-1] if conta.historico.transacoes else None
+    if ultima and ultima["tipo"] == "Saque":
+        db.atualizar_saldo(conta.numero, conta.saldo)
+        db.salvar_transacao(conta.numero, "Saque", valor)
 
 def exibir_extrato(clientes): # Função para exibir o extrato de um cliente, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função recupera a conta associada ao cliente e exibe o histórico de transações, incluindo o tipo da transação, valor, data e o saldo atual da conta. A função também exibe o número de transações realizadas no dia e o limite diário de transações. Se o cliente não for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
     cpf = input("Informe o CPF do cliente: ")
@@ -234,7 +266,7 @@ def exibir_extrato(clientes): # Função para exibir o extrato de um cliente, so
     print(f"\nTransações realizadas: {realizadas_hoje}/{Cliente.LIMITE_TRANSACOES_DIARIAS}")
     print("==========================================")
 
-def criar_cliente(clientes): # Função para criar um novo cliente, solicitando informações como CPF, nome completo, data de nascimento e endereço. A função verifica se já existe um cliente com o mesmo CPF antes de criar um novo cliente e adicioná-lo à lista de clientes. Se um cliente com o mesmo CPF já existir, exibe uma mensagem informando que já existe um cliente com esse CPF
+def criar_cliente(clientes, db): # Função para criar um novo cliente, solicitando informações como CPF, nome completo, data de nascimento e endereço. A função verifica se já existe um cliente com o mesmo CPF antes de criar um novo cliente e adicioná-lo à lista de clientes. Se um cliente com o mesmo CPF já existir, exibe uma mensagem informando que já existe um cliente com esse CPF
     cpf = input("Informe o CPF (somente números): ")
     if filtrar_cliente(cpf, clientes):
         print("\n=== Já existe cliente com esse CPF! ===")
@@ -246,6 +278,7 @@ def criar_cliente(clientes): # Função para criar um novo cliente, solicitando 
 
     cliente = PessoaFisica(nome=nome, cpf=cpf, data_nascimento=data_nascimento, endereco=endereco)
     clientes.append(cliente)
+    db.salvar_cliente(cpf, nome, data_nascimento, endereco)
     print("\n=== Cliente criado com sucesso! ===")
 
 def filtrar_cliente(cpf, clientes): # Função para filtrar um cliente pelo CPF, aceitando diferentes formatos de entrada e comparando apenas os dígitos do CPF. Retorna o cliente encontrado ou None se não houver correspondência
@@ -256,7 +289,7 @@ def filtrar_cliente(cpf, clientes): # Função para filtrar um cliente pelo CPF,
     ]
     return clientes_filtrados[0] if clientes_filtrados else None
 
-def criar_conta(clientes, contas, numero_conta): # Função para criar uma nova conta para um cliente existente, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função cria uma nova conta corrente, adiciona à lista de contas e associa a conta ao cliente. Se o cliente não for encontrado, exibe uma mensagem informando que o cliente não foi encontrado
+def criar_conta(clientes, contas, db): # Função para criar uma nova conta, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função cria uma nova conta associada ao cliente, adiciona a conta à lista de contas e à lista de contas do cliente, e salva a conta no banco de dados. Se o cliente não for encontrado, exibe uma mensagem informando que o cliente não foi encontrado
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -264,7 +297,8 @@ def criar_conta(clientes, contas, numero_conta): # Função para criar uma nova 
         print("\n=== Cliente não encontrado! ===")
         return
 
-    conta = ContaCorrente.nova_conta(cliente=cliente, numero=numero_conta)
+    numero = db.salvar_conta(cpf)
+    conta = ContaCorrente.nova_conta(cliente=cliente, numero=numero)
     contas.append(conta)
     cliente.adicionar_conta(conta)
     print("\n=== Conta criada com sucesso! ===")
@@ -312,44 +346,150 @@ def listar_contas(contas): # Função para listar todas as contas cadastradas, e
             CPF: \t\t{formatar_cpf(conta.cliente._cpf)}""")) 
             print("=" * 100)
 
-def main(): # Função principal do programa que inicializa as listas de clientes e contas, exibe o menu de opções e processa as escolhas do usuário
-    clientes = []
-    contas = []
-    menu = """
-=======Menu de Opções======
-1. Depositar
-2. Sacar
-3. Visualizar Extrato
-4. Novo Cliente
-5. Nova Conta
-6. Listar Clientes
-7. Listar Contas
-8. Sair
-===========================
-"""
+def excluir_conta(clientes, contas, db): # Função para excluir uma conta, solicitando o CPF do titular e verificando se o cliente existe na lista de clientes. Se o cliente for encontrado, a função verifica se ele possui contas associadas e exibe as contas disponíveis. O usuário é solicitado a informar o número da conta a ser excluída e, se a conta for encontrada, é solicitada uma confirmação antes de excluir a conta do banco de dados, da lista de contas e da lista de contas associadas ao cliente. Se o cliente não for encontrado ou não tiver contas associadas, exibe mensagens informando a situação
+    cpf     = input("Informe o CPF do titular: ")
+    cliente = filtrar_cliente(cpf, clientes)
 
-    while True: # Loop principal do programa para exibir o menu e processar as opções escolhidas pelo usuário
+    if not cliente:
+        print("\n=== Cliente não encontrado! ===")
+        return
+
+    
+    if not cliente._contas:
+        print("\n=== Cliente não possui contas cadastradas! ===")
+        return
+
+    print("\nContas do cliente:")
+    for conta in cliente._contas:
+        print(f"  Nº {conta.numero} | Saldo: R$ {conta.saldo:.2f}")
+
+    try:
+        numero = int(input("\nInforme o número da conta a excluir: "))
+    except ValueError:
+        print("\nNúmero inválido.")
+        return
+
+    conta_alvo = next((c for c in cliente._contas if c.numero == numero), None)
+    if not conta_alvo:
+        print("\n=== Conta não encontrada para este cliente! ===")
+        return
+
+    confirmacao = input(f"\nConfirma exclusão da conta nº {numero}? (s/n): ")
+    if confirmacao.lower() != "s":
+        print("\nOperação cancelada.")
+        return
+
+    db.excluir_conta(numero)
+    contas.remove(conta_alvo)
+    cliente._contas.remove(conta_alvo)
+    print(f"\n=== Conta nº {numero} excluída com sucesso! ===")
+
+
+def excluir_cliente(clientes, contas, db): # Função para excluir um cliente, solicitando o CPF do cliente e verificando se ele existe na lista de clientes. Se o cliente for encontrado, a função verifica se ele possui contas associadas e exibe uma mensagem informando que todas as contas do cliente serão excluídas. O usuário é solicitado a confirmar a exclusão do cliente e, se confirmado, a função exclui o cliente do banco de dados, remove todas as contas associadas ao cliente da lista de contas e remove o cliente da lista de clientes. Se o cliente não for encontrado, exibe uma mensagem informando que o cliente não foi encontrado
+    cpf     = input("Informe o CPF do cliente: ")
+    cliente = filtrar_cliente(cpf, clientes)
+
+    if not cliente:
+        print("\n=== Cliente não encontrado! ===")
+        return
+
+    print(f"\nCliente: {cliente.nome}")
+    if cliente._contas:
+        print(f"Atenção: este cliente possui {len(cliente._contas)} conta(s). Todas serão excluídas.")
+
+    confirmacao = input("\nConfirma exclusão do cliente e todas as suas contas? (s/n): ")
+    if confirmacao.lower() != "s":
+        print("\nOperação cancelada.")
+        return
+
+    
+    for conta in cliente._contas:
+        if conta in contas:
+            contas.remove(conta)
+
+    db.excluir_cliente(cliente._cpf)
+    clientes.remove(cliente)
+    print(f"\n=== Cliente {cliente.nome} excluído com sucesso! ===")
+
+def carregar_dados(db): # Função para carregar os dados de clientes e contas do banco de dados, criando objetos de cliente e conta com base nas informações recuperadas. A função retorna duas listas: uma com os clientes e outra com as contas, associando as contas aos clientes correspondentes. Se um cliente tiver mais de uma conta, todas as contas serão associadas ao cliente correto, e o histórico de transações de cada conta será carregado a partir do banco de dados
+    clientes, contas = [], []
+
+    for row in db.listar_clientes():
+        c = PessoaFisica(nome=row["nome"], cpf=row["cpf"], data_nascimento=row["data_nascimento"], endereco=row["endereco"])
+        clientes.append(c)
+
+    for row in db.listar_contas():
+        cliente = filtrar_cliente(row["cpf"], clientes)
+        if not cliente:
+            continue
+        conta = ContaCorrente.nova_conta(cliente=cliente, numero=row["numero"])
+        conta._saldo = row["saldo"]
+
+        for t in db.buscar_transacoes(row["numero"]):
+            conta.historico._transacoes.append({
+                "tipo": t["tipo"],
+                "valor": t["valor"],
+                "data": t["data"]
+            })
+
+        contas.append(conta)
+        cliente.adicionar_conta(conta)
+
+    return clientes, contas
+
+def main(): # Função principal do programa que inicializa as listas de clientes e contas, exibe o menu de opções e processa as escolhas do usuário
+    db = Database()
+    clientes, contas = carregar_dados(db)
+
+    menu = """
+╔══════════════════════════════════════╗
+║           SISTEMA BANCÁRIO           ║
+╠══════════════════════════════════════╣
+║  TRANSAÇÕES                          ║
+║  1  >  Depositar                     ║
+║  2  >  Sacar                         ║
+║  3  >  Visualizar Extrato            ║
+╠══════════════════════════════════════╣
+║  CLIENTES                            ║
+║  4  >  Novo Cliente                  ║
+║  5  >  Listar Clientes               ║
+║  6  >  Excluir Cliente               ║
+╠══════════════════════════════════════╣
+║  CONTAS                              ║
+║  7  >  Nova Conta                    ║
+║  8  >  Listar Contas                 ║
+║  9  >  Excluir Conta                 ║
+╠══════════════════════════════════════╣
+║  0  >  Sair                          ║
+╚══════════════════════════════════════╝
+>> """
+
+    while True:
         opcao = input(menu)
 
         if opcao == "1":
-            depositar(clientes)
+            depositar(clientes, db)
         elif opcao == "2":
-            sacar(clientes)
+            sacar(clientes, db)
         elif opcao == "3":
             exibir_extrato(clientes)
         elif opcao == "4":
-            criar_cliente(clientes)
+            criar_cliente(clientes, db)
         elif opcao == "5":
-            numero_conta = len(contas) + 1
-            criar_conta(clientes, contas, numero_conta)
-        elif opcao == "6":
             listar_clientes(clientes)
+        elif opcao == "6":
+            excluir_cliente(clientes, contas, db)
         elif opcao == "7":
-            listar_contas(contas)
+            criar_conta(clientes, contas, db)
         elif opcao == "8":
-            print("Encerrando o programa. Obrigado por usar nosso sistema bancário!")
+            listar_contas(contas)
+        elif opcao == "9":
+            excluir_conta(clientes, contas, db)
+        elif opcao == "0":
+            db.fechar()
+            print("\nEncerrando o sistema. Obrigado por utilizar nossos serviços!")
             break
         else:
-            print("Opção inválida. Por favor, escolha uma opção válida.")
+            print("\nOpção inválida. Tente novamente.")
 
-main() # Executa o programa principal para iniciar o sistema bancário
+main()
