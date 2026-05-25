@@ -23,4 +23,4 @@ RUN adduser --disabled-password --gecos "" appuser \
 
 USER appuser
 
-CMD ["python", "desafio.py"]
+CMD ["python", "main.py"]
