@@ -101,7 +101,7 @@ class Database:
                 );
             """)
             self.conn.commit()
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao criar tabelas: {e}")
 
@@ -114,7 +114,7 @@ class Database:
                 (cpf, nome, data_nascimento, endereco)
             )
             self.conn.commit()
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao salvar cliente: {e}")
 
@@ -142,7 +142,7 @@ class Database:
             self._executar("DELETE FROM contas WHERE cpf_cliente = %s;", (cpf,))
             self._executar("DELETE FROM clientes WHERE cpf = %s;", (cpf,))
             self.conn.commit()
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao excluir cliente: {e}")
 
@@ -157,7 +157,7 @@ class Database:
             resultado = self.cursor.fetchone()
             self.conn.commit()
             return resultado["numero"]
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao salvar conta: {e}")
 
@@ -180,7 +180,7 @@ class Database:
                 (novo_saldo, numero_conta)
             )
             self.conn.commit()
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao atualizar saldo: {e}")
 
@@ -189,7 +189,7 @@ class Database:
             self._executar("DELETE FROM transacoes WHERE numero_conta = %s;", (numero_conta,))
             self._executar("DELETE FROM contas WHERE numero = %s;", (numero_conta,))
             self.conn.commit()
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao excluir conta: {e}")
 
@@ -202,7 +202,7 @@ class Database:
                 (numero_conta, tipo, valor, datetime.now())
             )
             self.conn.commit()
-        except Exception as e:
+        except psycopg2.Error as e:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao salvar transação: {e}")
 
