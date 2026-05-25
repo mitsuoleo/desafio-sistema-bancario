@@ -19,11 +19,7 @@ Sistema bancário simples desenvolvido em Python como desafio da Trilha Python d
 
 ## Como executar
 
-Pré-requisito: Python 3.x instalado.
-
-```bash
-python main.py
-```
+Pré-requisitos: Python 3.x e acesso a uma instância PostgreSQL.
 
 ### Variáveis de ambiente
 
@@ -33,9 +29,29 @@ Copie o arquivo de exemplo e preencha com suas configurações:
 cp .env.example .env
 ```
 
-As variáveis necessárias estão documentadas no `.env.example`.
+| Variável      | Descrição                        |
+|---------------|----------------------------------|
+| `DB_HOST`     | Endpoint do banco PostgreSQL     |
+| `DB_NAME`     | Nome do banco de dados           |
+| `DB_USER`     | Usuário do banco                 |
+| `DB_PASSWORD` | Senha do banco                   |
+| `DB_PORT`     | Porta (padrão: `5432`)           |
 
-### Com Docker
+### Sem Docker
+
+Exporte as variáveis antes de executar:
+
+```bash
+# Linux/macOS
+export $(cat .env | xargs)
+python main.py
+
+# Windows (PowerShell)
+Get-Content .env | ForEach-Object { $k, $v = $_ -split '=', 2; [System.Environment]::SetEnvironmentVariable($k, $v) }
+python main.py
+```
+
+### Com Docker (recomendado)
 
 ```bash
 docker build -t sistema-bancario .
