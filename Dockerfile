@@ -18,7 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Cria usuário não-root e transfere a posse dos arquivos
 RUN adduser --disabled-password --gecos "" appuser \
     && chown -R appuser /app
 
