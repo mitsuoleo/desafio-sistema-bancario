@@ -1,8 +1,14 @@
 # Banco de dados
 *.db
+*.sqlite3
 
 # Cache
 __pycache__/
+*.pyc
+
 
 # IDE
 .vscode/
+
+# Variáveis de ambiente
+.env

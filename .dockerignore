@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Banco local
+*.db
+*.sqlite3
+
+# Ambiente
+.env
+.venv
+venv/
+
+# IDE
+.vscode
+.idea
+
+# Docs / misc
+README.md
