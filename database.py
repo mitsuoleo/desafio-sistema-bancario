@@ -3,10 +3,6 @@ import time
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 class Database:
     def __init__(self):
