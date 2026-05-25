@@ -22,7 +22,7 @@ Sistema bancário simples desenvolvido em Python como desafio da Trilha Python d
 Pré-requisito: Python 3.x instalado.
 
 ```bash
-python desafio.py
+python main.py
 ```
 
 ### Variáveis de ambiente
@@ -39,7 +39,7 @@ As variáveis necessárias estão documentadas no `.env.example`.
 
 ```bash
 docker build -t sistema-bancario .
-docker run --env-file .env sistema-bancario
+docker run -it --env-file .env sistema-bancario
 ```
 
 > O container executa com usuário não-root (`appuser`) por padrão.
