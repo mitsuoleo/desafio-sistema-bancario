@@ -80,7 +80,7 @@ class ContaCorrente(Conta):
 
     def sacar(self, valor):
         saques_realizados = len([
-            t for t in self.historico.transacoes
+            t for t in self.historico.transacoes_do_dia
             if t["tipo"] == Saque.__name__
         ])
 
