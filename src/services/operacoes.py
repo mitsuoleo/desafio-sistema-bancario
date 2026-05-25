@@ -24,10 +24,9 @@ def depositar(clientes, db):
         return
 
     transacao = Deposito(valor)
-    cliente.realizar_transacao(conta, transacao)
+    sucesso = cliente.realizar_transacao(conta, transacao)
 
-    ultima = conta.historico.transacoes[-1] if conta.historico.transacoes else None
-    if ultima and ultima["tipo"] == "Deposito":
+    if sucesso:
         db.atualizar_saldo(conta.numero, conta.saldo)
         db.salvar_transacao(conta.numero, "Depósito", valor)
 
@@ -51,10 +50,9 @@ def sacar(clientes, db):
         return
 
     transacao = Saque(valor)
-    cliente.realizar_transacao(conta, transacao)
+    sucesso = cliente.realizar_transacao(conta, transacao)
 
-    ultima = conta.historico.transacoes[-1] if conta.historico.transacoes else None
-    if ultima and ultima["tipo"] == "Saque":
+    if sucesso:
         db.atualizar_saldo(conta.numero, conta.saldo)
         db.salvar_transacao(conta.numero, "Saque", valor)
 
