@@ -31,7 +31,12 @@ def carregar_dados(db):
         if not cliente:
             continue
 
-        conta = ContaCorrente.nova_conta(cliente=cliente, numero=row["numero"])
+        conta = ContaCorrente.nova_conta(
+            cliente=cliente,
+            numero=row["numero"],
+            limite=row["limite"],
+            limite_saques=row["limite_saques"],
+        )
         conta.restaurar_saldo(row["saldo"])
 
         for t in db.buscar_transacoes(row["numero"]):

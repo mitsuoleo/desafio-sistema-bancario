@@ -120,3 +120,8 @@ class TestRealizarTransacaoRetorno:
             cliente.realizar_transacao(conta, Deposito(1))
         sucesso = cliente.realizar_transacao(conta, Deposito(1))
         assert sucesso is False
+
+    def test_retorna_false_quando_operacao_recusada(self, conta, cliente):
+        sucesso = cliente.realizar_transacao(conta, Saque(100))
+        assert sucesso is False
+        assert conta.saldo == 0

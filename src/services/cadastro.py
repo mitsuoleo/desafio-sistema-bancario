@@ -7,6 +7,11 @@ from src.utils import filtrar_cliente, formatar_cpf, formatar_data, recuperar_co
 
 def criar_cliente(clientes, db):
     cpf = input("Informe o CPF (somente números): ")
+    cpf_digitos = "".join(filter(str.isdigit, cpf))
+    if len(cpf_digitos) != 11:
+        print("\nCPF inválido. Informe 11 dígitos.")
+        return
+    cpf = cpf_digitos
     if filtrar_cliente(cpf, clientes):
         print("\n=== Já existe cliente com esse CPF! ===")
         return

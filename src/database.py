@@ -167,7 +167,8 @@ class Database:
 
     def listar_contas(self):
         self._executar("""
-            SELECT c.numero, c.agencia, c.saldo, cl.nome, cl.cpf
+            SELECT c.numero, c.agencia, c.saldo, c.limite, c.limite_saques,
+                   cl.nome, cl.cpf
             FROM contas c
             JOIN clientes cl ON c.cpf_cliente = cl.cpf
         """)
@@ -206,6 +207,22 @@ class Database:
             self.conn.rollback()
             raise RuntimeError(f"Erro ao salvar transação: {e}")
 
+    def salvar_operacao(self, numero_conta, tipo, valor, novo_saldo):
+        """Persiste saldo e transação em uma única transação SQL."""
+        try:
+            self._executar(
+                "UPDATE contas SET saldo = %s WHERE numero = %s;",
+                (novo_saldo, numero_conta),
+            )
+            self._executar(
+                "INSERT INTO transacoes (numero_conta, tipo, valor, data) VALUES (%s, %s, %s, %s);",
+                (numero_conta, tipo, valor, datetime.now()),
+            )
+            self.conn.commit()
+        except psycopg2.Error as e:
+            self.conn.rollback()
+            raise RuntimeError(f"Erro ao salvar operação: {e}")
+
     def buscar_transacoes(self, numero_conta):
         self._executar(
             "SELECT * FROM transacoes WHERE numero_conta = %s ORDER BY id;",
@@ -214,6 +231,7 @@ class Database:
         return self.cursor.fetchall()
 
     def fechar(self):
-        if self.conn:
+        if getattr(self, "cursor", None):
             self.cursor.close()
+        if getattr(self, "conn", None):
             self.conn.close()

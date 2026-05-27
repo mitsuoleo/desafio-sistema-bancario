@@ -33,6 +33,7 @@ class Deposito(Transacao):
         sucesso_transacao = conta.depositar(self.valor)
         if sucesso_transacao:
             conta.historico.adicionar_transacao(self)
+        return sucesso_transacao
 
 
 class Saque(Transacao):
@@ -49,6 +50,7 @@ class Saque(Transacao):
         sucesso_transacao = conta.sacar(self.valor)
         if sucesso_transacao:
             conta.historico.adicionar_transacao(self)
+        return sucesso_transacao
 
 
 class Historico:
@@ -61,6 +63,14 @@ class Historico:
     def transacoes(self):
         return self._transacoes
 
+    def _data_da_transacao(self, transacao):
+        try:
+            return datetime.strptime(
+                transacao["data"], "%d/%m/%Y %H:%M:%S"
+            ).date()
+        except (ValueError, KeyError, TypeError):
+            return None
+
     @property
     def transacoes_do_dia(self):
         """Retorna apenas as transações realizadas na data atual.
@@ -71,7 +81,7 @@ class Historico:
         hoje = datetime.now().date()
         return [
             t for t in self._transacoes
-            if datetime.strptime(t["data"], "%d/%m/%Y %H:%M:%S").date() == hoje
+            if self._data_da_transacao(t) == hoje
         ]
 
     def adicionar_transacao(self, transacao):

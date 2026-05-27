@@ -27,8 +27,7 @@ def depositar(clientes, db):
     sucesso = cliente.realizar_transacao(conta, transacao)
 
     if sucesso:
-        db.atualizar_saldo(conta.numero, conta.saldo)
-        db.salvar_transacao(conta.numero, "Depósito", valor)
+        db.salvar_operacao(conta.numero, "Depósito", valor, conta.saldo)
 
 
 def sacar(clientes, db):
@@ -53,8 +52,7 @@ def sacar(clientes, db):
     sucesso = cliente.realizar_transacao(conta, transacao)
 
     if sucesso:
-        db.atualizar_saldo(conta.numero, conta.saldo)
-        db.salvar_transacao(conta.numero, "Saque", valor)
+        db.salvar_operacao(conta.numero, "Saque", valor, conta.saldo)
 
 
 def exibir_extrato(clientes):

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from src.models.transacao import Historico, Saque
 
 
@@ -5,7 +7,7 @@ class Conta:
     """Conta bancária base com saldo, histórico e operações de crédito/débito."""
 
     def __init__(self, numero, cliente):
-        self._saldo = 0
+        self._saldo = Decimal("0")
         self._numero = numero
         self._agencia = "0001"
         self._cliente = cliente
@@ -42,9 +44,10 @@ class Conta:
         Usado exclusivamente em carregar_dados() para evitar
         acesso direto a _saldo e mensagens indevidas no terminal.
         """
-        self._saldo = valor
+        self._saldo = Decimal(str(valor))
 
     def depositar(self, valor):
+        valor = Decimal(str(valor))
         if valor > 0:
             self._saldo += valor
             print("\nDepósito realizado com sucesso!")
@@ -54,6 +57,7 @@ class Conta:
             return False
 
     def sacar(self, valor):
+        valor = Decimal(str(valor))
         if valor > self._saldo:
             print("\nSaldo insuficiente para realizar o saque.")
             return False
@@ -75,10 +79,16 @@ class ContaCorrente(Conta):
 
     def __init__(self, numero, cliente, limite=500, limite_saques=3):
         super().__init__(numero, cliente)
-        self._limite = limite
+        self._limite = Decimal(str(limite))
         self._limite_saques = limite_saques
 
+    @classmethod
+    def nova_conta(cls, cliente, numero, limite=500, limite_saques=3):
+        """Fábrica que padroniza a criação de contas correntes."""
+        return cls(numero, cliente, limite=limite, limite_saques=limite_saques)
+
     def sacar(self, valor):
+        valor = Decimal(str(valor))
         saques_realizados = len([
             t for t in self.historico.transacoes_do_dia
             if t["tipo"] == Saque.__name__

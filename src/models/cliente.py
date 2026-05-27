@@ -23,8 +23,7 @@ class Cliente:
         if len(conta.historico.transacoes_do_dia) >= self.LIMITE_TRANSACOES_DIARIAS:
             print("\nLimite diário de transações atingido. Tente novamente amanhã.")
             return False
-        transacao.registrar(conta)
-        return True
+        return transacao.registrar(conta)
 
     def adicionar_conta(self, conta):
         self._contas.append(conta)
