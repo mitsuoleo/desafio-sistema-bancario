@@ -38,7 +38,7 @@ function showAdminView(name) {
   $$(".sidebar--admin .nav-item").forEach((n) => {
     n.classList.toggle("active", n.dataset.adminView === name);
   });
-  const titles = { resumo: "Visão geral", busca: "Buscar por CPF" };
+  const titles = { resumo: "Visão geral", busca: "Buscar por CPF", excluir: "Excluir contas e clientes" };
   $("#admin-page-title").textContent = titles[name] || name;
 }
 
@@ -99,28 +99,33 @@ function renderDetalheCliente(data) {
   const contasHtml = data.contas
     .map((c) => {
       const transHtml = c.transacoes.length
-        ? c.transacoes
+        ? `<div class="extrato-itens-container">` +
+          c.transacoes
             .map(
               (t) => `
           <div class="extrato-item ${t.tipo.toLowerCase()}">
-            <span>${t.tipo}</span>
-            <span>${formatMoney(t.valor)} · ${t.data}</span>
+            <div class="extrato-item-meta">
+              <span class="extrato-item-title">${t.tipo}</span>
+              <span class="extrato-item-date">${t.data}</span>
+            </div>
+            <span class="extrato-item-value">${t.tipo.toLowerCase() === 'deposito' ? '+' : '-'} ${formatMoney(t.valor)}</span>
           </div>`
             )
-            .join("")
-        : '<p class="meta">Sem movimentações nesta conta.</p>';
+            .join("") +
+          `</div>`
+        : '<div class="empty" style="padding: 1rem;"><p>Sem movimentações registradas para esta conta.</p></div>';
 
       return `
       <article class="card admin-conta-detalhe">
         <header class="admin-conta-header">
           <div>
-            <h4>Conta ${c.numero} · Ag. ${c.agencia}</h4>
-            <p class="saldo-inline">${formatMoney(c.saldo)}</p>
+            <h4>Conta nº ${c.numero} · Agência ${c.agencia}</h4>
+            <div class="saldo-inline">${formatMoney(c.saldo)}</div>
           </div>
-          <span class="meta">${c.transacoes_hoje}/${c.limite_transacoes_dia} trans. hoje</span>
+          <span class="meta">${c.transacoes_hoje}/${c.limite_transacoes_dia} Transações Hoje</span>
         </header>
-        <p class="meta">Limite saque: ${formatMoney(c.limite_saque)} · ${c.limite_saques_dia} saques/dia</p>
-        <h5>Extrato</h5>
+        <p class="meta">Limites operacionais: Saque diário de <strong>${formatMoney(c.limite_saque)}</strong> · Máx <strong>${c.limite_saques_dia} saques</strong>/dia</p>
+        <h5 style="margin-top: 1rem; margin-bottom: 0.5rem;">Registro de Transações</h5>
         ${transHtml}
       </article>`;
     })
@@ -128,15 +133,15 @@ function renderDetalheCliente(data) {
 
   box.innerHTML = `
     <article class="card admin-cliente-detalhe">
-      <h3>${data.nome}</h3>
-      <div class="meta-grid">
+      <h3>Perfil Cadastral: ${data.nome}</h3>
+      <div class="meta-grid" style="margin-top: 1.5rem;">
         <div><span>CPF</span><strong>${data.cpf_formatado}</strong></div>
         <div><span>Nascimento</span><strong>${data.data_nascimento}</strong></div>
-        <div class="span-2"><span>Endereço</span><strong>${data.endereco}</strong></div>
+        <div class="span-2"><span>Endereço Residencial</span><strong>${data.endereco}</strong></div>
       </div>
     </article>
-    <h3 class="section-title">${data.contas.length} conta(s) vinculada(s)</h3>
-    ${contasHtml || '<p class="empty card">Cliente sem contas.</p>'}
+    <h3 class="section-title" style="margin-top: 1rem; margin-bottom: 0.5rem;">${data.contas.length} conta(s) vinculada(s)</h3>
+    ${contasHtml || '<div class="empty card"><p>Este cliente não possui contas bancárias vinculadas.</p></div>'}
   `;
 }
 
@@ -186,6 +191,54 @@ $("#btn-admin-sair")?.addEventListener("click", () => {
   showScreen("screen-admin-login");
   $("#form-admin-login").reset();
   toast("Sessão administrativa encerrada.");
+});
+
+$("#excluir-cliente-cpf")?.addEventListener("input", (e) => {
+  e.target.value = formatCpfInput(e.target.value);
+});
+
+$("#form-excluir-cliente")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const cpf = cpfSomenteDigitos(new FormData(e.target).get("cpf"));
+  if (cpf.length !== 11) {
+    toast("Informe um CPF com 11 dígitos.", "error");
+    return;
+  }
+  if (!confirm("CUIDADO: Tem certeza absoluta que deseja excluir este cliente e todas as suas contas permanentemente? Esta ação não pode ser desfeita!")) {
+    return;
+  }
+  try {
+    const res = await adminRequest(`/admin/clientes/${cpf}`, {
+      method: "DELETE",
+    });
+    toast(res.mensagem);
+    e.target.reset();
+    carregarResumo();
+  } catch (err) {
+    toast(err.message, "error");
+  }
+});
+
+$("#form-excluir-conta")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const numero = parseInt(new FormData(e.target).get("numero"), 10);
+  if (!numero) {
+    toast("Informe um número de conta válido.", "error");
+    return;
+  }
+  if (!confirm(`CUIDADO: Tem certeza que deseja excluir a conta nº ${numero} permanentemente? Todos os registros de saldo e transações desta conta serão perdidos!`)) {
+    return;
+  }
+  try {
+    const res = await adminRequest(`/admin/contas/${numero}`, {
+      method: "DELETE",
+    });
+    toast(res.mensagem);
+    e.target.reset();
+    carregarResumo();
+  } catch (err) {
+    toast(err.message, "error");
+  }
 });
 
 if (getAdminToken()) {

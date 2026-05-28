@@ -52,9 +52,10 @@ function setPortalToken(token) {
 }
 
 async function request(path, options = {}) {
+  const { headers, ...rest } = options;
   const res = await fetch(`${API}${path}`, {
-    headers: { "Content-Type": "application/json", ...options.headers },
-    ...options,
+    headers: { "Content-Type": "application/json", ...headers },
+    ...rest,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

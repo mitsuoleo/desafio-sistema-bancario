@@ -6,43 +6,60 @@
   <title>Área do Banco — Sistema Bancário</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.2" />
 </head>
 <body class="app-body app-body--admin">
   <div class="grain" aria-hidden="true"></div>
 
-  <section class="screen active auth-screen" id="screen-admin-login">
+  <!-- Tela de Login Administrativo -->
+  <section class="screen active auth-screen" id="screen-admin-login" aria-label="Login administrativo">
     <div class="auth-card">
-      <a href="/" class="back-link">← Voltar</a>
+      <a href="/" class="back-link">← Voltar à página inicial</a>
       <p class="eyebrow">Área do banco</p>
-      <h1>Login do funcionário</h1>
-      <p class="auth-hint">Acesso restrito para consulta de clientes e contas.</p>
+      <h1>Acesso de Funcionário</h1>
+      <p class="auth-hint">Acesso restrito para auditoria de clientes, contas e transações financeiras.</p>
+      
       <form id="form-admin-login">
-        <label>Usuário</label>
-        <input name="usuario" required autocomplete="username" placeholder="admin" />
-        <label>Senha</label>
-        <input name="senha" type="password" required autocomplete="current-password" placeholder="••••••••" />
-        <button type="submit" class="btn primary">Entrar</button>
+        <label for="admin-username">Identificação do usuário</label>
+        <input name="usuario" id="admin-username" required autocomplete="username" placeholder="Digite seu usuário (Ex: admin)" />
+        
+        <label for="admin-password">Senha de acesso</label>
+        <input name="senha" id="admin-password" type="password" required autocomplete="current-password" placeholder="••••••••" />
+        
+        <button type="submit" class="btn primary">Autenticar e Entrar</button>
       </form>
-      <p class="auth-note">Estudo: usuário <code>admin</code> · senha <code>banco1234</code></p>
+      
+      <p class="auth-note">Estudo e Simulação · Usuário: <code>admin</code> · Senha: <code>banco1234</code></p>
     </div>
   </section>
 
+  <!-- App logado (Shell Administrativo) -->
   <div class="screen app-shell" id="screen-admin-app">
-    <aside class="sidebar sidebar--admin">
+    <aside class="sidebar sidebar--admin" aria-label="Menu administrativo">
       <div class="brand">
-        <span class="brand-mark brand-mark--admin">◆</span>
+        <span class="brand-mark brand-mark--admin" aria-hidden="true">◆</span>
         <div>
           <strong>Painel do Banco</strong>
           <small id="admin-user-label">Funcionário</small>
         </div>
       </div>
-      <nav class="nav">
-        <button class="nav-item active" data-admin-view="resumo">Visão geral</button>
-        <button class="nav-item" data-admin-view="busca">Buscar por CPF</button>
+      
+      <nav class="nav" aria-label="Navegação administrativa">
+        <button class="nav-item active" data-admin-view="resumo">
+          <span>📊</span> Visão geral
+        </button>
+        <button class="nav-item" data-admin-view="busca">
+          <span>🔍</span> Buscar por CPF
+        </button>
+        <button class="nav-item" data-admin-view="excluir">
+          <span>🗑️</span> Excluir contas/clientes
+        </button>
       </nav>
-      <button type="button" class="btn ghost btn-block" id="btn-admin-sair">Sair</button>
+      
+      <button type="button" class="btn ghost btn-block" id="btn-admin-sair" style="border-color: rgba(239, 68, 68, 0.2); color: var(--danger); margin-top: auto;">
+        Encerrar Sessão
+      </button>
     </aside>
 
     <main class="main">
@@ -51,43 +68,88 @@
           <p class="eyebrow">Administração</p>
           <h1 id="admin-page-title">Visão geral</h1>
         </div>
-        <button type="button" class="btn ghost" id="btn-admin-refresh">Atualizar</button>
+        <button type="button" class="btn ghost" id="btn-admin-refresh">
+          <span>🔄</span> Atualizar Dados
+        </button>
       </header>
 
-      <section class="admin-view active" id="admin-view-resumo">
-        <div class="stats-row" id="admin-stats"></div>
-        <h2 class="section-title">Todas as contas</h2>
-        <div class="table-wrap card">
+      <!-- View Visão Geral (Resumo do Banco) -->
+      <section class="admin-view active" id="admin-view-resumo" aria-labelledby="admin-page-title">
+        <div class="stats-row" id="admin-stats">
+          <!-- Renderizado dinamicamente via JS -->
+        </div>
+        
+        <h2 class="section-title" style="margin-top: 1rem;">Contas Cadastradas no Sistema</h2>
+        <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Conta</th>
+                <th>Código Conta</th>
                 <th>Titular</th>
                 <th>CPF</th>
-                <th>Saldo</th>
-                <th>Trans. hoje</th>
+                <th>Saldo Disponível</th>
+                <th>Transações Hoje</th>
               </tr>
             </thead>
-            <tbody id="tabela-admin-contas"></tbody>
+            <tbody id="tabela-admin-contas">
+              <!-- Renderizado dinamicamente via JS -->
+            </tbody>
           </table>
         </div>
       </section>
 
-      <section class="admin-view" id="admin-view-busca">
-        <form class="card form-card search-card" id="form-busca-cpf">
-          <h3>Consultar cliente por CPF</h3>
-          <label>CPF do cliente</label>
-          <div class="search-row">
-            <input name="cpf" id="input-cpf-busca" required placeholder="000.000.000-00" maxlength="14" />
-            <button type="submit" class="btn primary">Buscar</button>
+      <!-- View Busca por CPF -->
+      <section class="admin-view" id="admin-view-busca" aria-label="Consultar Cliente">
+        <div class="card form-card search-card">
+          <h3>Consultar Perfil do Cliente</h3>
+          <form id="form-busca-cpf">
+            <label for="input-cpf-busca">Digite o CPF do cliente para auditoria</label>
+            <div class="search-row">
+              <input name="cpf" id="input-cpf-busca" required placeholder="000.000.000-00" maxlength="14" />
+              <button type="submit" class="btn primary">Pesquisar</button>
+            </div>
+          </form>
+        </div>
+        
+        <div id="resultado-busca" class="hidden">
+          <!-- Renderizado dinamicamente via JS -->
+        </div>
+      </section>
+
+      <!-- View Excluir Contas/Clientes -->
+      <section class="admin-view" id="admin-view-excluir" aria-label="Excluir Contas e Clientes">
+        <div class="panel-grid">
+          <!-- Painel para excluir Cliente -->
+          <div class="card form-card">
+            <h3>Excluir Perfil de Cliente</h3>
+            <p class="auth-hint" style="margin-bottom: 1rem; color: var(--danger);">CUIDADO: Excluir um cliente removerá permanentemente seu perfil e todas as contas vinculadas.</p>
+            <form id="form-excluir-cliente">
+              <label for="excluir-cliente-cpf">CPF do Cliente</label>
+              <input name="cpf" id="excluir-cliente-cpf" required placeholder="000.000.000-00" maxlength="14" />
+              <button type="submit" class="btn primary" style="background: linear-gradient(135deg, var(--danger), var(--danger-dim)); color: #ffffff; box-shadow: 0 4px 20px var(--danger-glow);">
+                Excluir Cliente Permanentemente
+              </button>
+            </form>
           </div>
-        </form>
-        <div id="resultado-busca" class="hidden"></div>
+
+          <!-- Painel para excluir Conta -->
+          <div class="card form-card">
+            <h3>Excluir Conta Corrente</h3>
+            <p class="auth-hint" style="margin-bottom: 1rem; color: var(--danger);">CUIDADO: Excluir uma conta removerá permanentemente todos os registros e saldo associados.</p>
+            <form id="form-excluir-conta">
+              <label for="excluir-conta-numero">Número da Conta</label>
+              <input type="number" name="numero" id="excluir-conta-numero" required placeholder="Ex: 1" />
+              <button type="submit" class="btn primary" style="background: linear-gradient(135deg, var(--danger), var(--danger-dim)); color: #ffffff; box-shadow: 0 4px 20px var(--danger-glow);">
+                Excluir Conta Permanentemente
+              </button>
+            </form>
+          </div>
+        </div>
       </section>
     </main>
   </div>
 
-  <script src="/static/common.js"></script>
-  <script src="/static/admin.js"></script>
+  <script src="/static/common.js?v=1.0.2"></script>
+  <script src="/static/admin.js?v=1.0.2"></script>
 </body>
 </html>

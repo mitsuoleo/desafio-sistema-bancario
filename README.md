@@ -12,12 +12,14 @@ Sistema bancário desenvolvido em Python como desafio da Trilha Python da Suzano
 
 ### Web ([http://localhost:8000](http://localhost:8000))
 
-| Painel | URL | Acesso |
-|--------|-----|--------|
-| **Cliente** | `/cliente` | CPF → cadastro + conta na 1ª vez; depois só suas contas |
-| **Banco** | `/admin` | `admin` / `banco1234` (configurável no `.env`) |
+Interface web totalmente redesenhada com um **Design System Premium em Dark Mode** (Outfit/Inter typography, glassmorphism, textura fosca e animações fluidas).
 
-O cliente **não vê** dados de outros CPFs. O banco consulta visão geral e busca por CPF com extratos.
+| Painel | URL | Acesso / Recursos |
+|--------|-----|-------------------|
+| **Cliente** | `/cliente` | CPF → cadastro estruturado (com seleção de UF do Brasil) + conta na 1ª vez; visualização de contas em formato de **cartões bancários realistas**, saques, depósitos e extrato cronológico. |
+| **Banco** | `/admin` | `admin` / `banco1234` (configurável no `.env`); visualização consolidada do saldo, consulta de perfil de clientes, e **nova aba para exclusão administrativa de contas e clientes** protegida por token. |
+
+O cliente **não vê** dados de outros CPFs. O banco consulta a visão geral, busca por CPF com extratos detalhados e gerencia exclusões.
 
 ## Regras de negócio
 
@@ -90,10 +92,14 @@ Os testes de API usam banco **mockado** (não exigem PostgreSQL).
 ## Arquitetura da API
 
 ```
-/api/health          — status
-/api/portal/*        — cliente (token X-Portal-Token após login)
-/api/admin/*         — funcionário (token X-Admin-Token após login)
-/api/*               — legado (somente se ENABLE_LEGACY_API=true)
+/api/health          — Status e integridade
+/api/portal/*        — Cliente (autenticado com X-Portal-Token)
+/api/admin/*         — Funcionário (autenticado com X-Admin-Token)
+  ├── GET /resumo    — Visão consolidada e métricas
+  ├── GET /clientes  — Consulta de perfil cadastral por CPF
+  ├── DELETE /clientes/{cpf}  — Exclusão de perfil e contas [NOVO]
+  └── DELETE /contas/{numero} — Exclusão de conta corrente [NOVO]
+/api/*               — Legado (sem autenticação, desabilitado por padrão)
 ```
 
 ## Segurança

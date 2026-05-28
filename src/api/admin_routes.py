@@ -101,3 +101,40 @@ def detalhes_cliente(cpf: str):
         "endereco": cliente.endereco,
         "contas": [_serializar_conta_admin(c) for c in cliente.contas],
     }
+
+
+@router.delete("/clientes/{cpf}", dependencies=[Depends(verificar_admin)])
+def admin_excluir_cliente(cpf: str):
+    state = _get_state()
+    cpf_digitos = "".join(filter(str.isdigit, cpf))
+    cliente = filtrar_cliente(cpf_digitos, state.clientes)
+    if not cliente:
+        raise HTTPException(404, "Cliente não encontrado.")
+
+    # Remove all client's accounts from the global list
+    for conta in list(cliente.contas):
+        if conta in state.contas:
+            state.contas.remove(conta)
+
+    state.db.excluir_cliente(cliente.cpf)
+    state.clientes.remove(cliente)
+    return {"mensagem": f"Cliente {cliente.nome} e suas contas foram excluídos com sucesso."}
+
+
+@router.delete("/contas/{numero}", dependencies=[Depends(verificar_admin)])
+def admin_excluir_conta(numero: int):
+    state = _get_state()
+    
+    # Find the account in global state
+    conta = next((c for c in state.contas if c.numero == numero), None)
+    if not conta:
+        raise HTTPException(404, "Conta não encontrada.")
+
+    cliente = conta.cliente
+    state.db.excluir_conta(numero)
+    state.contas.remove(conta)
+    if conta in cliente.contas:
+        cliente.contas.remove(conta)
+        
+    return {"mensagem": f"Conta nº {numero} excluída com sucesso."}
+

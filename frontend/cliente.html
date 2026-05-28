@@ -6,124 +6,230 @@
   <title>Área do Cliente — Sistema Bancário</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.2" />
 </head>
 <body class="app-body app-body--cliente">
   <div class="grain" aria-hidden="true"></div>
 
   <!-- Login CPF -->
-  <section class="screen active auth-screen" id="screen-login">
+  <section class="screen active auth-screen" id="screen-login" aria-label="Entrar com CPF">
     <div class="auth-card">
-      <a href="/" class="back-link">← Voltar</a>
+      <a href="/" class="back-link">← Voltar à página inicial</a>
       <p class="eyebrow">Área do cliente</p>
-      <h1>Entrar com CPF</h1>
-      <p class="auth-hint">Informe seu CPF para acessar apenas suas contas.</p>
+      <h1>Acesse sua conta</h1>
+      <p class="auth-hint">Informe seu CPF para visualizar e gerenciar suas contas bancárias.</p>
+      
       <form id="form-login-cpf">
-        <label>CPF</label>
+        <label for="input-cpf-login">CPF do titular</label>
         <input name="cpf" id="input-cpf-login" required placeholder="000.000.000-00" maxlength="14" autocomplete="off" />
-        <button type="submit" class="btn primary">Continuar</button>
+        <button type="submit" class="btn primary">Continuar para o painel</button>
       </form>
     </div>
   </section>
 
   <!-- Cadastro cliente + conta -->
-  <section class="screen auth-screen" id="screen-cadastro">
+  <section class="screen auth-screen" id="screen-cadastro" aria-label="Criar nova conta">
     <div class="auth-card auth-card--wide">
       <a href="#" class="back-link" id="voltar-login">← Voltar ao login</a>
       <p class="eyebrow">Primeiro acesso</p>
-      <h1>Cadastro e abertura de conta</h1>
-      <p class="auth-hint">CPF não encontrado. Preencha seus dados para criar cliente e conta em uma única etapa.</p>
+      <h1>Criar perfil e abrir conta</h1>
+      <p class="auth-hint">Identificamos que seu CPF não está cadastrado. Preencha os campos abaixo para criar seu perfil e abrir sua primeira conta instantaneamente.</p>
+      
       <form id="form-cadastro">
-        <label>CPF</label>
+        <label for="input-cpf-cadastro">CPF</label>
         <input name="cpf" id="input-cpf-cadastro" required readonly />
-        <label>Nome completo</label>
-        <input name="nome" required />
-        <label>Data de nascimento</label>
-        <input name="data_nascimento" required placeholder="dd/mm/aaaa" />
-        <label>Endereço</label>
-        <input name="endereco" required placeholder="Rua, nº - bairro - cidade/UF" />
-        <button type="submit" class="btn primary">Cadastrar e abrir conta</button>
+        
+        <label for="input-nome">Nome completo</label>
+        <input name="nome" id="input-nome" required placeholder="Digite seu nome completo" />
+        
+        <label for="input-nascimento">Data de nascimento</label>
+        <input name="data_nascimento" id="input-nascimento" required placeholder="dd/mm/aaaa" maxlength="10" />
+        
+        <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 1rem;">
+          <div>
+            <label for="input-rua">Rua / Logradouro</label>
+            <input name="rua" id="input-rua" required placeholder="Ex: Av. Paulista" />
+          </div>
+          <div>
+            <label for="input-numero">Número</label>
+            <input name="numero" id="input-numero" required placeholder="Ex: 1000" />
+          </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <label for="input-complemento">Complemento <span style="font-size: 0.72rem; opacity: 0.6; font-weight: normal;">(Opcional)</span></label>
+            <input name="complemento" id="input-complemento" placeholder="Ex: Ap 42" />
+          </div>
+          <div>
+            <label for="input-bairro">Bairro</label>
+            <input name="bairro" id="input-bairro" required placeholder="Ex: Bela Vista" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+          <div>
+            <label for="input-cidade">Cidade</label>
+            <input name="cidade" id="input-cidade" required placeholder="Ex: São Paulo" />
+          </div>
+          <div>
+            <label for="input-estado">Estado</label>
+            <select name="estado" id="input-estado" required>
+              <option value="" disabled selected>UF</option>
+              <option value="AC">AC</option>
+              <option value="AL">AL</option>
+              <option value="AP">AP</option>
+              <option value="AM">AM</option>
+              <option value="BA">BA</option>
+              <option value="CE">CE</option>
+              <option value="DF">DF</option>
+              <option value="ES">ES</option>
+              <option value="GO">GO</option>
+              <option value="MA">MA</option>
+              <option value="MT">MT</option>
+              <option value="MS">MS</option>
+              <option value="MG">MG</option>
+              <option value="PA">PA</option>
+              <option value="PB">PB</option>
+              <option value="PR">PR</option>
+              <option value="PE">PE</option>
+              <option value="PI">PI</option>
+              <option value="RJ">RJ</option>
+              <option value="RN">RN</option>
+              <option value="RS">RS</option>
+              <option value="RO">RO</option>
+              <option value="RR">RR</option>
+              <option value="SC">SC</option>
+              <option value="SP">SP</option>
+              <option value="SE">SE</option>
+              <option value="TO">TO</option>
+            </select>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn primary">Concluir cadastro e abrir conta</button>
       </form>
     </div>
   </section>
 
-  <!-- App logado -->
+  <!-- App logado (Shell) -->
   <div class="screen app-shell" id="screen-app">
-    <aside class="sidebar sidebar--cliente">
+    <aside class="sidebar sidebar--cliente" aria-label="Menu principal">
       <div class="brand">
-        <span class="brand-mark">◇</span>
+        <span class="brand-mark" aria-hidden="true">◇</span>
         <div>
-          <strong>Minha conta</strong>
-          <small id="sidebar-cpf">—</small>
+          <strong>Minha Conta</strong>
+          <small id="sidebar-cpf">000.000.000-00</small>
         </div>
       </div>
-      <p class="user-greeting">Olá, <strong id="sidebar-nome">—</strong></p>
-      <nav class="nav">
-        <button class="nav-item active" data-view="inicio">Início</button>
-        <button class="nav-item" data-view="depositar">Depositar</button>
-        <button class="nav-item" data-view="sacar">Sacar</button>
-        <button class="nav-item" data-view="extrato">Extrato</button>
+      
+      <div class="user-greeting">
+        Olá, <strong id="sidebar-nome">Usuário</strong>
+      </div>
+      
+      <nav class="nav" aria-label="Navegação do cliente">
+        <button class="nav-item active" data-view="inicio">
+          <span>🏠</span> Início
+        </button>
+        <button class="nav-item" data-view="depositar">
+          <span>📥</span> Depositar
+        </button>
+        <button class="nav-item" data-view="sacar">
+          <span>📤</span> Sacar
+        </button>
+        <button class="nav-item" data-view="extrato">
+          <span>📄</span> Extrato
+        </button>
       </nav>
-      <button type="button" class="btn ghost btn-block" id="btn-nova-conta">+ Nova conta</button>
-      <button type="button" class="btn ghost btn-block" id="btn-sair">Sair</button>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: auto;">
+        <button type="button" class="btn ghost btn-block" id="btn-nova-conta">
+          + Nova conta
+        </button>
+        <button type="button" class="btn ghost btn-block" id="btn-sair" style="border-color: rgba(239, 68, 68, 0.2); color: var(--danger);">
+          Sair da conta
+        </button>
+      </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Suas contas</p>
+          <p class="eyebrow">Painel do cliente</p>
           <h1 id="cliente-page-title">Início</h1>
         </div>
       </header>
 
-      <section class="cliente-view active" id="view-inicio">
-        <div class="contas-cliente" id="lista-contas-cliente"></div>
+      <!-- View Início (Dashboard de Contas) -->
+      <section class="cliente-view active" id="view-inicio" aria-labelledby="cliente-page-title">
+        <div class="contas-cliente" id="lista-contas-cliente">
+          <!-- Renderizado dinamicamente via JS -->
+        </div>
+        
         <div class="rules-card card">
-          <h3>Regras do seu acesso</h3>
+          <h3>Regras Operacionais e Limites</h3>
           <ul>
-            <li>Você visualiza apenas contas vinculadas ao seu CPF.</li>
-            <li>Limite de <strong>R$ 500</strong> por saque e <strong>3 saques</strong> por dia.</li>
-            <li>Até <strong>10 transações</strong> diárias por conta.</li>
+            <li>Você visualiza e gerencia apenas contas registradas sob o seu CPF.</li>
+            <li>Limite máximo de saque diário de <strong>R$ 500,00</strong> por transação.</li>
+            <li>Limite diário fixado em até <strong>3 saques realizados</strong> por conta.</li>
+            <li>Cada conta possui um limite máximo global de até <strong>10 transações</strong> diárias.</li>
           </ul>
         </div>
       </section>
 
-      <section class="cliente-view" id="view-depositar">
-        <form class="card form-card" id="form-deposito">
-          <h3>Depositar</h3>
-          <label>Conta</label>
-          <select name="numero_conta" id="deposito-conta" required></select>
-          <label>Valor (R$)</label>
-          <input type="number" name="valor" min="0.01" step="0.01" required />
-          <button type="submit" class="btn primary">Confirmar depósito</button>
-        </form>
+      <!-- View Depositar -->
+      <section class="cliente-view" id="view-depositar" aria-label="Realizar Depósito">
+        <div class="card form-card">
+          <h3>Realizar Depósito Bancário</h3>
+          <form id="form-deposito">
+            <label for="deposito-conta">Selecione a conta de destino</label>
+            <select name="numero_conta" id="deposito-conta" required></select>
+            
+            <label for="deposito-valor">Valor a depositar (R$)</label>
+            <input type="number" name="valor" id="deposito-valor" min="0.01" step="0.01" required placeholder="0,00" />
+            
+            <button type="submit" class="btn primary">Confirmar Depósito</button>
+          </form>
+        </div>
       </section>
 
-      <section class="cliente-view" id="view-sacar">
-        <form class="card form-card" id="form-saque">
-          <h3>Sacar</h3>
-          <label>Conta</label>
-          <select name="numero_conta" id="saque-conta" required></select>
-          <label>Valor (R$)</label>
-          <input type="number" name="valor" min="0.01" max="500" step="0.01" required />
-          <button type="submit" class="btn primary">Confirmar saque</button>
-        </form>
+      <!-- View Sacar -->
+      <section class="cliente-view" id="view-sacar" aria-label="Realizar Saque">
+        <div class="card form-card">
+          <h3>Realizar Saque Bancário</h3>
+          <form id="form-saque">
+            <label for="saque-conta">Selecione a conta de origem</label>
+            <select name="numero_conta" id="saque-conta" required></select>
+            
+            <label for="saque-valor">Valor a sacar (R$)</label>
+            <input type="number" name="valor" id="saque-valor" min="0.01" max="500" step="0.01" required placeholder="0,00" />
+            
+            <button type="submit" class="btn primary">Confirmar Saque</button>
+          </form>
+        </div>
       </section>
 
-      <section class="cliente-view" id="view-extrato">
-        <form class="card form-card" id="form-extrato">
-          <h3>Extrato</h3>
-          <label>Conta</label>
-          <select name="numero_conta" id="extrato-conta" required></select>
-          <button type="submit" class="btn primary">Consultar extrato</button>
-        </form>
-        <div id="extrato-resultado" class="card extrato-box hidden"></div>
+      <!-- View Extrato -->
+      <section class="cliente-view" id="view-extrato" aria-label="Consultar Extrato">
+        <div class="card form-card" style="max-width: 100%;">
+          <h3>Consultar Extrato Financeiro</h3>
+          <form id="form-extrato" style="max-width: 580px; margin-bottom: 2rem;">
+            <label for="extrato-conta">Selecione a conta para consulta</label>
+            <select name="numero_conta" id="extrato-conta" required></select>
+            
+            <button type="submit" class="btn primary">Visualizar Extrato Completo</button>
+          </form>
+          
+          <div id="extrato-resultado" class="extrato-box hidden">
+            <!-- Renderizado dinamicamente via JS -->
+          </div>
+        </div>
       </section>
     </main>
   </div>
 
-  <script src="/static/common.js"></script>
-  <script src="/static/cliente.js"></script>
+  <script src="/static/common.js?v=1.0.2"></script>
+  <script src="/static/cliente.js?v=1.0.2"></script>
 </body>
 </html>

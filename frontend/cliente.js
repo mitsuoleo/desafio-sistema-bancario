@@ -52,7 +52,7 @@ function renderContasCliente() {
   const contas = clienteState.sessao?.contas || [];
 
   if (!contas.length) {
-    lista.innerHTML = '<p class="empty card">Nenhuma conta vinculada ao seu CPF.</p>';
+    lista.innerHTML = '<div class="empty card"><p>Nenhuma conta vinculada ao seu CPF.</p></div>';
     return;
   }
 
@@ -62,13 +62,20 @@ function renderContasCliente() {
     <article class="account-card account-card--highlight">
       <header>
         <div>
-          <strong>Ag. ${c.agencia}</strong>
-          <div class="meta">Conta ${c.numero}</div>
+          <strong>Agência ${c.agencia}</strong>
+          <div class="meta">Conta nº ${c.numero}</div>
         </div>
-        <span class="meta">${c.transacoes_hoje}/${c.limite_transacoes_dia} trans. hoje</span>
+        <span class="account-card-badge">${c.transacoes_hoje}/${c.limite_transacoes_dia} Transações</span>
       </header>
+      <div class="account-card-chip"></div>
       <div class="saldo">${formatMoney(c.saldo)}</div>
-      <div class="meta">Limite saque: ${formatMoney(c.limite_saque)} · ${c.limite_saques_dia} saques/dia</div>
+      <div class="meta-footer">
+        <div class="limites">
+          Saque máx: <strong>${formatMoney(c.limite_saque)}</strong><br>
+          Restante: <strong>${c.limite_saques_dia} saques/dia</strong>
+        </div>
+        <span class="account-card-brand">◇ DIO Bank</span>
+      </div>
     </article>`
     )
     .join("");
@@ -136,6 +143,17 @@ $("#voltar-login")?.addEventListener("click", (e) => {
 $("#form-cadastro")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const fd = new FormData(e.target);
+  
+  // Concatenar os campos de endereço
+  const rua = fd.get("rua").trim();
+  const numero = fd.get("numero").trim();
+  const complemento = fd.get("complemento") ? fd.get("complemento").trim() : "";
+  const bairro = fd.get("bairro").trim();
+  const cidade = fd.get("cidade").trim();
+  const estado = fd.get("estado");
+  
+  const enderecoCompleto = `${rua}, nº ${numero}${complemento ? ` - ${complemento}` : ""} - ${bairro} - ${cidade}/${estado}`;
+
   try {
     const res = await request("/portal/cadastro", {
       method: "POST",
@@ -143,7 +161,7 @@ $("#form-cadastro")?.addEventListener("submit", async (e) => {
         cpf: cpfSomenteDigitos(fd.get("cpf")),
         nome: fd.get("nome"),
         data_nascimento: fd.get("data_nascimento"),
-        endereco: fd.get("endereco"),
+        endereco: enderecoCompleto,
       }),
     });
     aplicarRespostaPortal(res);
@@ -222,23 +240,31 @@ $("#form-extrato")?.addEventListener("submit", async (e) => {
     box.classList.remove("hidden");
 
     const itens = data.transacoes.length
-      ? data.transacoes
+      ? `<div class="extrato-itens-container">` +
+        data.transacoes
           .map(
             (t) => `
         <div class="extrato-item ${t.tipo.toLowerCase()}">
-          <span>${t.tipo}</span>
-          <span>${formatMoney(t.valor)} · ${t.data}</span>
+          <div class="extrato-item-meta">
+            <span class="extrato-item-title">${t.tipo}</span>
+            <span class="extrato-item-date">${t.data}</span>
+          </div>
+          <span class="extrato-item-value">${t.tipo.toLowerCase() === 'deposito' ? '+' : '-'} ${formatMoney(t.valor)}</span>
         </div>`
           )
-          .join("")
-      : '<p class="meta">Nenhuma movimentação registrada.</p>';
+          .join("") +
+        `</div>`
+      : '<div class="empty" style="padding: 1.5rem;"><p>Nenhuma movimentação registrada nesta conta.</p></div>';
 
     box.innerHTML = `
-      <h3>Conta ${data.conta} · Ag. ${data.agencia}</h3>
+      <h3>Conta ${data.conta} · Agência ${data.agencia}</h3>
       <p class="meta">${data.titular} · ${data.cpf_formatado}</p>
       ${itens}
-      <p class="extrato-saldo">Saldo: <strong>${formatMoney(data.saldo)}</strong></p>
-      <p class="meta">Transações hoje: ${data.transacoes_hoje}/${data.limite_transacoes_dia}</p>
+      <div class="extrato-saldo" style="margin-top: 1.5rem;">
+        <span>Saldo Disponível</span>
+        <strong>${formatMoney(data.saldo)}</strong>
+      </div>
+      <p class="meta" style="margin-top: 0.5rem; font-size: 0.8rem;">Transações hoje: ${data.transacoes_hoje}/${data.limite_transacoes_dia}</p>
     `;
   } catch (err) {
     toast(err.message, "error");
@@ -252,3 +278,14 @@ if (sessaoSalva && getPortalToken()) {
   limparSessao();
   showScreen("screen-login");
 }
+
+function formatDataNascimentoInput(value) {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+$("#input-nascimento")?.addEventListener("input", (e) => {
+  e.target.value = formatDataNascimentoInput(e.target.value);
+});

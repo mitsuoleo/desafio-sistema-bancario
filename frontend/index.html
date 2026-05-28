@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema Bancário</title>
+  <title>Sistema Bancário — Desafio DIO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body class="landing-body">
@@ -15,30 +15,28 @@
   <main class="landing">
     <header class="landing-header">
       <span class="brand-mark">◇</span>
-      <div>
-        <h1>Sistema Bancário</h1>
-        <p>Protótipo DIO — escolha como deseja acessar</p>
-      </div>
+      <h1>Sistema Bancário</h1>
+      <p>Protótipo de alta fidelidade — Escolha a área de acesso para continuar</p>
     </header>
 
-    <div class="portal-grid">
+    <section class="portal-grid" aria-label="Portais de Acesso">
       <a href="/cliente" class="portal-card portal-card--cliente">
-        <span class="portal-icon">👤</span>
+        <span class="portal-icon" aria-hidden="true">👤</span>
         <h2>Área do Cliente</h2>
-        <p>Acesse com seu CPF para depositar, sacar e consultar extrato das suas contas.</p>
-        <span class="portal-cta">Entrar como cliente →</span>
+        <p>Acesse seu painel com seu CPF para realizar saques, depósitos, verificar extrato detalhado e gerenciar suas contas.</p>
+        <span class="portal-cta">Entrar na minha conta →</span>
       </a>
 
       <a href="/admin" class="portal-card portal-card--admin">
-        <span class="portal-icon">🏦</span>
+        <span class="portal-icon" aria-hidden="true">🏦</span>
         <h2>Área do Banco</h2>
-        <p>Login de funcionário para consultar clientes, contas e movimentações.</p>
+        <p>Acesso restrito para funcionários realizarem consultas de clientes, auditoria de contas, saldos e movimentações diárias.</p>
         <span class="portal-cta">Acesso administrativo →</span>
       </a>
-    </div>
+    </section>
 
     <footer class="landing-footer">
-      <small>Estudo · usuário admin / senha banco1234 no painel do banco</small>
+      <small>Estudo e Simulação · Acesso Administrativo: <code>admin</code> / Senha: <code>banco1234</code></small>
     </footer>
   </main>
 </body>
