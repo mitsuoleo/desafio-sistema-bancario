@@ -15,7 +15,11 @@ class Database:
 
         missing = [v for v in ("DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD") if not os.getenv(v)]
         if missing:
-            raise ValueError(f"Variáveis de ambiente faltando: {', '.join(missing)}")
+            raise ValueError(
+                f"Variáveis de ambiente faltando: {', '.join(missing)}. "
+                "Copie .env.example para .env na raiz do projeto, preencha os valores "
+                "e execute novamente (o protótipo web carrega o .env automaticamente)."
+            )
 
         self._conectar()
         self._criar_tabelas()

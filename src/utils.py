@@ -40,6 +40,17 @@ def filtrar_cliente(cpf, clientes):
     return clientes_filtrados[0] if clientes_filtrados else None
 
 
+def obter_conta(cliente, numero_conta=None):
+    """Retorna a conta do cliente. Com várias contas, exige numero_conta."""
+    if not cliente.contas:
+        return None
+    if numero_conta is not None:
+        return next((c for c in cliente.contas if c.numero == numero_conta), None)
+    if len(cliente.contas) == 1:
+        return cliente.contas[0]
+    return None
+
+
 def recuperar_conta_cliente(cliente):
     """Retorna a conta do cliente.
 

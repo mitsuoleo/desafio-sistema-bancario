@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Área do Banco — Sistema Bancário</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="app-body app-body--admin">
+  <div class="grain" aria-hidden="true"></div>
+
+  <section class="screen active auth-screen" id="screen-admin-login">
+    <div class="auth-card">
+      <a href="/" class="back-link">← Voltar</a>
+      <p class="eyebrow">Área do banco</p>
+      <h1>Login do funcionário</h1>
+      <p class="auth-hint">Acesso restrito para consulta de clientes e contas.</p>
+      <form id="form-admin-login">
+        <label>Usuário</label>
+        <input name="usuario" required autocomplete="username" placeholder="admin" />
+        <label>Senha</label>
+        <input name="senha" type="password" required autocomplete="current-password" placeholder="••••••••" />
+        <button type="submit" class="btn primary">Entrar</button>
+      </form>
+      <p class="auth-note">Estudo: usuário <code>admin</code> · senha <code>banco1234</code></p>
+    </div>
+  </section>
+
+  <div class="screen app-shell" id="screen-admin-app">
+    <aside class="sidebar sidebar--admin">
+      <div class="brand">
+        <span class="brand-mark brand-mark--admin">◆</span>
+        <div>
+          <strong>Painel do Banco</strong>
+          <small id="admin-user-label">Funcionário</small>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-admin-view="resumo">Visão geral</button>
+        <button class="nav-item" data-admin-view="busca">Buscar por CPF</button>
+      </nav>
+      <button type="button" class="btn ghost btn-block" id="btn-admin-sair">Sair</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Administração</p>
+          <h1 id="admin-page-title">Visão geral</h1>
+        </div>
+        <button type="button" class="btn ghost" id="btn-admin-refresh">Atualizar</button>
+      </header>
+
+      <section class="admin-view active" id="admin-view-resumo">
+        <div class="stats-row" id="admin-stats"></div>
+        <h2 class="section-title">Todas as contas</h2>
+        <div class="table-wrap card">
+          <table>
+            <thead>
+              <tr>
+                <th>Conta</th>
+                <th>Titular</th>
+                <th>CPF</th>
+                <th>Saldo</th>
+                <th>Trans. hoje</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-admin-contas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-view" id="admin-view-busca">
+        <form class="card form-card search-card" id="form-busca-cpf">
+          <h3>Consultar cliente por CPF</h3>
+          <label>CPF do cliente</label>
+          <div class="search-row">
+            <input name="cpf" id="input-cpf-busca" required placeholder="000.000.000-00" maxlength="14" />
+            <button type="submit" class="btn primary">Buscar</button>
+          </div>
+        </form>
+        <div id="resultado-busca" class="hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/admin.js"></script>
+</body>
+</html>

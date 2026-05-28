@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Área do Cliente — Sistema Bancário</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="app-body app-body--cliente">
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Login CPF -->
+  <section class="screen active auth-screen" id="screen-login">
+    <div class="auth-card">
+      <a href="/" class="back-link">← Voltar</a>
+      <p class="eyebrow">Área do cliente</p>
+      <h1>Entrar com CPF</h1>
+      <p class="auth-hint">Informe seu CPF para acessar apenas suas contas.</p>
+      <form id="form-login-cpf">
+        <label>CPF</label>
+        <input name="cpf" id="input-cpf-login" required placeholder="000.000.000-00" maxlength="14" autocomplete="off" />
+        <button type="submit" class="btn primary">Continuar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Cadastro cliente + conta -->
+  <section class="screen auth-screen" id="screen-cadastro">
+    <div class="auth-card auth-card--wide">
+      <a href="#" class="back-link" id="voltar-login">← Voltar ao login</a>
+      <p class="eyebrow">Primeiro acesso</p>
+      <h1>Cadastro e abertura de conta</h1>
+      <p class="auth-hint">CPF não encontrado. Preencha seus dados para criar cliente e conta em uma única etapa.</p>
+      <form id="form-cadastro">
+        <label>CPF</label>
+        <input name="cpf" id="input-cpf-cadastro" required readonly />
+        <label>Nome completo</label>
+        <input name="nome" required />
+        <label>Data de nascimento</label>
+        <input name="data_nascimento" required placeholder="dd/mm/aaaa" />
+        <label>Endereço</label>
+        <input name="endereco" required placeholder="Rua, nº - bairro - cidade/UF" />
+        <button type="submit" class="btn primary">Cadastrar e abrir conta</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- App logado -->
+  <div class="screen app-shell" id="screen-app">
+    <aside class="sidebar sidebar--cliente">
+      <div class="brand">
+        <span class="brand-mark">◇</span>
+        <div>
+          <strong>Minha conta</strong>
+          <small id="sidebar-cpf">—</small>
+        </div>
+      </div>
+      <p class="user-greeting">Olá, <strong id="sidebar-nome">—</strong></p>
+      <nav class="nav">
+        <button class="nav-item active" data-view="inicio">Início</button>
+        <button class="nav-item" data-view="depositar">Depositar</button>
+        <button class="nav-item" data-view="sacar">Sacar</button>
+        <button class="nav-item" data-view="extrato">Extrato</button>
+      </nav>
+      <button type="button" class="btn ghost btn-block" id="btn-nova-conta">+ Nova conta</button>
+      <button type="button" class="btn ghost btn-block" id="btn-sair">Sair</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Suas contas</p>
+          <h1 id="cliente-page-title">Início</h1>
+        </div>
+      </header>
+
+      <section class="cliente-view active" id="view-inicio">
+        <div class="contas-cliente" id="lista-contas-cliente"></div>
+        <div class="rules-card card">
+          <h3>Regras do seu acesso</h3>
+          <ul>
+            <li>Você visualiza apenas contas vinculadas ao seu CPF.</li>
+            <li>Limite de <strong>R$ 500</strong> por saque e <strong>3 saques</strong> por dia.</li>
+            <li>Até <strong>10 transações</strong> diárias por conta.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="cliente-view" id="view-depositar">
+        <form class="card form-card" id="form-deposito">
+          <h3>Depositar</h3>
+          <label>Conta</label>
+          <select name="numero_conta" id="deposito-conta" required></select>
+          <label>Valor (R$)</label>
+          <input type="number" name="valor" min="0.01" step="0.01" required />
+          <button type="submit" class="btn primary">Confirmar depósito</button>
+        </form>
+      </section>
+
+      <section class="cliente-view" id="view-sacar">
+        <form class="card form-card" id="form-saque">
+          <h3>Sacar</h3>
+          <label>Conta</label>
+          <select name="numero_conta" id="saque-conta" required></select>
+          <label>Valor (R$)</label>
+          <input type="number" name="valor" min="0.01" max="500" step="0.01" required />
+          <button type="submit" class="btn primary">Confirmar saque</button>
+        </form>
+      </section>
+
+      <section class="cliente-view" id="view-extrato">
+        <form class="card form-card" id="form-extrato">
+          <h3>Extrato</h3>
+          <label>Conta</label>
+          <select name="numero_conta" id="extrato-conta" required></select>
+          <button type="submit" class="btn primary">Consultar extrato</button>
+        </form>
+        <div id="extrato-resultado" class="card extrato-box hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/cliente.js"></script>
+</body>
+</html>
